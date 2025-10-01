@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>読書速度計測ツール（リアルタイム版）</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .timer {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        #startBtn {
+            background-color: #28a745;
+            color: white;
+        }
+        #startBtn:hover {
+            background-color: #218838;
+        }
+        #stopBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #stopBtn:hover {
+            background-color: #c82333;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            height: 30px; /* 表示が切り替わる際のガタつきを防ぐ */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>読書速度計測ツール</h1>
+    <input type="number" id="charCount" placeholder="文章の文字数を入力">
+    <div class="timer" id="timer">0.00</div>
+    <button id="startBtn">スタート</button>
+    <button id="stopBtn">ストップ</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    const charCountInput = document.getElementById('charCount');
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resultDisplay = document.getElementById('result');
+
+    let startTime;
+    let timerInterval;
+
+    // ストップウォッチを開始する関数
+    function startTimer() {
+        if (!charCountInput.value || charCountInput.value <= 0) {
+            alert('先に正の文字数を入力してください。');
+            return;
+        }
+        startTime = Date.now();
+        // 100ミリ秒ごと（0.1秒ごと）に更新して表示のチラつきを抑える
+        timerInterval = setInterval(updateDisplay, 100); 
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        resultDisplay.textContent = '';
+    }
+
+    // 時間と分速を更新する関数
+    function updateDisplay() {
+        const elapsedTimeInSeconds = (Date.now() - startTime) / 1000;
+        // 経過時間を表示
+        timerDisplay.textContent = elapsedTimeInSeconds.toFixed(2);
+        
+        const charCount = parseInt(charCountInput.value, 10);
+        
+        // リアルタイムで分速を計算して表示
+        if (elapsedTimeInSeconds > 0) {
+            const charsPerMinute = (charCount / elapsedTimeInSeconds) * 60;
+            resultDisplay.textContent = `分速 ${Math.round(charsPerMinute)} 字`;
+        }
+    }
+
+    // ストップウォッチを停止する関数
+    function stopTimer() {
+        clearInterval(timerInterval);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
+
+    startBtn.addEventListener('click', startTimer);
+    stopBtn.addEventListener('click', stopTimer);
+    
+    // 初期状態ではストップボタンは無効
+    stopBtn.disabled = true;
+
+</script>
+
+</body>
+</html>
